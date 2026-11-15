@@ -1,0 +1,413 @@
+<!DOCTYPE html>
+<html lang="ms">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EduMon - RPG Mata Pelajaran</title>
+    <style>
+        body {
+            background-color: #1e1e2e;
+            color: #ffffff;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+        }
+        h1 { margin-bottom: 5px; color: #a6e3a1; }
+        p.subtitle { margin-top: 0; color: #cdd6f4; font-size: 14px; }
+        
+        #game-container {
+            position: relative;
+            width: 480px;
+            height: 480px;
+            border: 4px solid #89b4fa;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+        }
+
+        canvas {
+            display: block;
+            background-color: #74c69d;
+        }
+
+        /* Antaramuka Pertempuran (Battle Screen) */
+        #battle-screen {
+            display: none;
+            position: absolute;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: linear-gradient(to bottom, #89dceb 55%, #a6e3a1 55%);
+            color: #11111b;
+            flex-direction: column;
+            justify-content: space-between;
+            padding: 15px;
+            box-sizing: border-box;
+        }
+
+        .status-box {
+            background: rgba(255, 255, 255, 0.9);
+            border: 3px solid #1e1e2e;
+            border-radius: 8px;
+            padding: 8px 12px;
+            width: 200px;
+            font-weight: bold;
+        }
+
+        .hp-bar-bg {
+            width: 100%;
+            height: 10px;
+            background: #ccc;
+            border-radius: 5px;
+            margin-top: 5px;
+            overflow: hidden;
+        }
+
+        .hp-bar {
+            height: 100%;
+            background: #40a02b;
+            width: 100%;
+            transition: width 0.3s;
+        }
+
+        .monster-area {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .sprite {
+            font-size: 65px;
+            user-select: none;
+        }
+
+        .player-area {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+        }
+
+        /* Kotak Soalan Mata Pelajaran */
+        #quiz-box {
+            background: #1e1e2e;
+            color: #ffffff;
+            border: 3px solid #f9e2af;
+            border-radius: 8px;
+            padding: 12px;
+            min-height: 130px;
+        }
+
+        #question-text {
+            font-size: 15px;
+            margin-bottom: 10px;
+            color: #f9e2af;
+        }
+
+        .options-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+        }
+
+        button.opt-btn {
+            background: #313244;
+            color: white;
+            border: 2px solid #89b4fa;
+            padding: 8px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: bold;
+        }
+
+        button.opt-btn:hover {
+            background: #89b4fa;
+            color: #11111b;
+        }
+
+        #hud {
+            margin-top: 10px;
+            background: #313244;
+            padding: 8px 20px;
+            border-radius: 20px;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>EduMon Quest</h1>
+    <p class="subtitle">Guna kekunci anak panah (⬆️⬇️⬅️➡️) untuk berjalan di rumput gelap & lawan raksasa!</p>
+
+    <div id="game-container">
+        <!-- Kanvas Peta Dunia -->
+        <canvas id="mapCanvas" width="480" height="480"></canvas>
+
+        <!-- Skrin Pertempuran -->
+        <div id="battle-screen">
+            <div class="monster-area">
+                <div class="status-box">
+                    <div id="enemy-name">Raksasa Liar</div>
+                    <div class="hp-bar-bg"><div id="enemy-hp" class="hp-bar"></div></div>
+                </div>
+                <div id="enemy-sprite" class="sprite">🐉</div>
+            </div>
+
+            <div class="player-area">
+                <div class="sprite">🧙‍♂️</div>
+                <div class="status-box">
+                    <div>Pelajar (Lv.<span id="player-lv">1</span>)</div>
+                    <div class="hp-bar-bg"><div id="player-hp" class="hp-bar"></div></div>
+                </div>
+            </div>
+
+            <div id="quiz-box">
+                <div id="question-text">Soalan muncul di sini...</div>
+                <div class="options-grid" id="options-container"></div>
+            </div>
+        </div>
+    </div>
+
+    <div id="hud">
+        Level: <span id="hud-lv">1</span> | XP: <span id="hud-xp">0</span>/100 | Raksasa Dikalahkan: <span id="hud-wins">0</span>
+    </div>
+
+    <script>
+        // ==========================================
+        // 1. SENARAI SOALAN MATA PELAJARAN (EDIT DI SINI)
+        // ==========================================
+        const bankSoalan = [
+            {
+                soalan: "Matematik: Berapakah hasil bagi 12 × 8?",
+                pilihan: ["86", "96", "104", "88"],
+                jawapan: "96"
+            },
+            {
+                soalan: "Sains: Apakah gas yang diperlukan oleh tumbuhan untuk fotosintesis?",
+                pilihan: ["Oksigen", "Nitrogen", "Karbon Dioksida", "Hidrogen"],
+                jawapan: "Karbon Dioksida"
+            },
+            {
+                soalan: "Sejarah: Bilakah Tanah Melayu mencapai kemerdekaan?",
+                pilihan: ["1957", "1963", "1948", "1969"],
+                jawapan: "1957"
+            },
+            {
+                soalan: "Bahasa Melayu: Kata lawan bagi perkataan 'rajin' ialah...",
+                pilihan: ["Tekun", "Malas", "Cergas", "Pantas"],
+                jawapan: "Malas"
+            },
+            {
+                soalan: "Geografi: Apakah gunung tertinggi di Malaysia?",
+                pilihan: ["Gunung Tahan", "Gunung Ledang", "Gunung Kinabalu", "Gunung Jerai"],
+                jawapan: "Gunung Kinabalu"
+            }
+        ];
+
+        // Senarai Raksasa Rawak
+        const senaraiRaksasa = [
+            { nama: "Naga Matematik", emoji: "🐉", maxHp: 60 },
+            { nama: "Golem Sains", emoji: "🗿", maxHp: 60 },
+            { nama: "Hantu Sejarah", emoji: "👻", maxHp: 40 },
+            { nama: "Raksasa Tatabahasa", emoji: "👾", maxHp: 80 }
+        ];
+
+        // ==========================================
+        // 2. TETAPAN PETA DUNIA (0 = Tanah, 1 = Pokok/Halangan, 2 = Rumput Raksasa)
+        // ==========================================
+        const tileSize = 40; // 12x12 petak (480px)
+        const peta = [
+            [1,1,1,1,1,1,1,1,1,1,1,1],
+            [1,0,0,0,2,2,2,0,0,0,0,1],
+            [1,0,0,0,2,2,2,0,1,1,0,1],
+            [1,0,1,0,0,0,0,0,0,0,0,1],
+            [1,0,1,0,0,0,0,2,2,2,0,1],
+            [1,0,0,0,0,0,0,2,2,2,0,1],
+            [1,2,2,2,0,1,0,2,2,2,0,1],
+            [1,2,2,2,0,1,0,0,0,0,0,1],
+            [1,2,2,2,0,0,0,0,1,0,0,1],
+            [1,0,0,0,0,2,2,0,1,0,0,1],
+            [1,0,0,0,0,2,2,0,0,0,0,1],
+            [1,1,1,1,1,1,1,1,1,1,1,1]
+        ];
+
+        const canvas = document.getElementById("mapCanvas");
+        const ctx = canvas.getContext("2d");
+
+        let player = {
+            x: 1, y: 1,
+            hp: 100, maxHp: 100,
+            lv: 1, xp: 0, wins: 0
+        };
+
+        let dalamPertempuran = false;
+        let musuhSemasa = null;
+
+        // ==========================================
+        // 3. LUKIS PETA & WATAK
+        // ==========================================
+        function lukisPeta() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            for (let row = 0; row < peta.length; row++) {
+                for (let col = 0; col < peta[row].length; col++) {
+                    let jenis = peta[row][col];
+                    let posX = col * tileSize;
+                    let posY = row * tileSize;
+
+                    if (jenis === 0) {
+                        ctx.fillStyle = "#95d5b2"; // Tanah cerah
+                        ctx.fillRect(posX, posY, tileSize, tileSize);
+                    } else if (jenis === 1) {
+                        ctx.fillStyle = "#2d6a4f"; // Pokok / Dinding
+                        ctx.fillRect(posX, posY, tileSize, tileSize);
+                        ctx.font = "26px Arial";
+                        ctx.fillText("🌲", posX + 6, posY + 30);
+                    } else if (jenis === 2) {
+                        ctx.fillStyle = "#52b788"; // Rumput tinggi (Tempat raksasa)
+                        ctx.fillRect(posX, posY, tileSize, tileSize);
+                        ctx.font = "22px Arial";
+                        ctx.fillText("🌿", posX + 8, posY + 28);
+                    }
+                }
+            }
+
+            // Lukis Watak Pemain
+            ctx.font = "28px Arial";
+            ctx.fillText("🧙‍♂️", player.x * tileSize + 5, player.y * tileSize + 30);
+        }
+
+        // Kawalan Papan Kekunci
+        window.addEventListener("keydown", function(e) {
+            if (dalamPertempuran) return;
+
+            let nextX = player.x;
+            let nextY = player.y;
+
+            if (e.key === "ArrowUp") nextY--;
+            else if (e.key === "ArrowDown") nextY++;
+            else if (e.key === "ArrowLeft") nextX--;
+            else if (e.key === "ArrowRight") nextX++;
+            else return;
+
+            // Semak jika bukan pokok (1)
+            if (peta[nextY][nextX] !== 1) {
+                player.x = nextX;
+                player.y = nextY;
+                lukisPeta();
+
+                // Jika pijak rumput tinggi (2), 35% peluang jumpa raksasa
+                if (peta[nextY][nextX] === 2 && Math.random() < 0.35) {
+                    mulaPertempuran();
+                }
+            }
+        });
+
+        // ==========================================
+        // 4. SISTEM PERTEMPURAN & SOALAN
+        // ==========================================
+        function mulaPertempuran() {
+            dalamPertempuran = true;
+            player.hp = player.maxHp; // Pulihkan nyawa setiap kali mula lawan
+
+            // Pilih raksasa secara rawak
+            let templat = senaraiRaksasa[Math.floor(Math.random() * senaraiRaksasa.length)];
+            musuhSemasa = {
+                nama: templat.nama,
+                emoji: templat.emoji,
+                hp: templat.maxHp,
+                maxHp: templat.maxHp
+            };
+
+            document.getElementById("enemy-name").innerText = musuhSemasa.nama;
+            document.getElementById("enemy-sprite").innerText = musuhSemasa.emoji;
+            document.getElementById("player-lv").innerText = player.lv;
+            kemaskiniBarNyawa();
+
+            document.getElementById("battle-screen").style.display = "flex";
+            paparSoalanBaru();
+        }
+
+        function paparSoalanBaru() {
+            let soalanRawak = bankSoalan[Math.floor(Math.random() * bankSoalan.length)];
+            document.getElementById("question-text").innerText = soalanRawak.soalan;
+
+            let container = document.getElementById("options-container");
+            container.innerHTML = "";
+
+            soalanRawak.pilihan.forEach(pilihan => {
+                let btn = document.createElement("button");
+                btn.className = "opt-btn";
+                btn.innerText = pilihan;
+                btn.onclick = () => semakJawapan(pilihan, soalanRawak.jawapan);
+                container.appendChild(btn);
+            });
+        }
+
+        function semakJawapan(dipilih, jawapanBetul) {
+            if (dipilih === jawapanBetul) {
+                // Jawapan Betul: Serang Raksasa!
+                let kerosakan = 20 + (player.lv * 5);
+                musuhSemasa.hp -= kerosakan;
+                alert(`⚡ SERANGAN TEPAT! Anda mengenakan ${kerosakan} kerosakan kepada ${musuhSemasa.nama}!`);
+            } else {
+                // Jawapan Salah: Raksasa Menyerang!
+                player.hp -= 25;
+                alert(`❌ JAWAPAN SALAH! Jawapan sebenar ialah "${jawapanBetul}". ${musuhSemasa.nama} menyerang anda!`);
+            }
+
+            kemaskiniBarNyawa();
+
+            // Semak keadaan menang atau kalah
+            if (musuhSemasa.hp <= 0) {
+                tamatPertempuran(true);
+            } else if (player.hp <= 0) {
+                tamatPertempuran(false);
+            } else {
+                paparSoalanBaru();
+            }
+        }
+
+        function kemaskiniBarNyawa() {
+            let peratusMusuh = Math.max(0, (musuhSemasa.hp / musuhSemasa.maxHp) * 100);
+            let peratusPemain = Math.max(0, (player.hp / player.maxHp) * 100);
+
+            document.getElementById("enemy-hp").style.width = peratusMusuh + "%";
+            document.getElementById("player-hp").style.width = peratusPemain + "%";
+        }
+
+        function tamatPertempuran(menang) {
+            if (menang) {
+                player.wins++;
+                player.xp += 50;
+                alert(`🏆 MENANG! Anda mengalahkan ${musuhSemasa.nama} dan mendapat +50 XP!`);
+
+                if (player.xp >= 100) {
+                    player.lv++;
+                    player.xp = 0;
+                    alert(`🎉 NAIK TAHAP! Anda kini berada di Level ${player.lv}! Kuasa serangan meningkat!`);
+                }
+            } else {
+                alert("💀 ANDA KALAH! Anda dikejarkan ke Pusat Pemulihan...");
+                player.x = 1;
+                player.y = 1;
+            }
+
+            // Kemaskini HUD bawah
+            document.getElementById("hud-lv").innerText = player.lv;
+            document.getElementById("hud-xp").innerText = player.xp;
+            document.getElementById("hud-wins").innerText = player.wins;
+
+            document.getElementById("battle-screen").style.display = "none";
+            dalamPertempuran = false;
+            lukisPeta();
+        }
+
+        // Mulakan permainan
+        lukisPeta();
+    </script>
+</body>
+</html>
