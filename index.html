@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>EduQuest RPG - Custom Sprite</title>
+    <title>EduQuest RPG - Built-in Pixel Art</title>
     <style>
         * { box-sizing: border-box; user-select: none; }
         body {
@@ -44,13 +44,12 @@
             image-rendering: pixelated;
         }
 
-        /* Kotak Dialog NPC / Pertempuran */
         #ui-overlay {
             display: none;
             position: absolute;
             bottom: 0; left: 0;
             width: 100%;
-            background: rgba(15, 20, 35, 0.95);
+            background: rgba(15, 20, 35, 0.96);
             border-top: 3px solid #ffd166;
             padding: 10px;
             color: #fff;
@@ -121,7 +120,6 @@
             font-weight: bold;
         }
 
-        /* Butang Kawalan */
         .controls {
             display: flex;
             justify-content: space-between;
@@ -174,10 +172,10 @@
                     <div id="enemy-name">HANTU TENGKORAK</div>
                     <div class="hp-bar"><div id="enemy-hp" class="hp-fill"></div></div>
                 </div>
-                <canvas id="enemySpriteCanvas" width="64" height="64" style="width:72px;height:72px;"></canvas>
+                <canvas id="enemySpriteCanvas" width="64" height="64" style="width:76px;height:76px;"></canvas>
             </div>
             <div style="display:flex; justify-content:space-between; align-items:center;">
-                <canvas id="playerSpriteCanvas" width="64" height="64" style="width:72px;height:72px;"></canvas>
+                <canvas id="playerSpriteCanvas" width="64" height="64" style="width:76px;height:76px;"></canvas>
                 <div class="stat-card">
                     <div>HERO Lv.<span id="b-lv">1</span></div>
                     <div class="hp-bar"><div id="player-hp" class="hp-fill"></div></div>
@@ -219,45 +217,192 @@ const bankSoalan = [
     { soalan: "MATEMATIK: 24 ÷ 3 + 5 = ?", pilihan: ["11", "13", "8", "15"], jawapan: "13" },
     { soalan: "SAINS: Haiwan yang makan tumbuhan sahaja dipanggil...", pilihan: ["Karnivor", "Herbivor", "Omnivor", "Mamalia"], jawapan: "Herbivor" },
     { soalan: "SEJARAH: Siapakah Bapa Kemerdekaan Malaysia?", pilihan: ["Tun Razak", "Tunku Abdul Rahman", "Tun Mahathir", "Onn Jaafar"], jawapan: "Tunku Abdul Rahman" },
-    { soalan: "B. MELAYU: Penjodoh bilangan untuk sebatang sungai ialah...", pilihan: ["Buah", "Batang", "Urat", "Bilah"], jawapan: "Batang" }
+    { soalan: "B. MELAYU: Penjodoh bilangan untuk sungai ialah...", pilihan: ["Buah", "Batang", "Urat", "Bilah"], jawapan: "Batang" }
 ];
 
 // =========================================================
-// 2. MUAT NAIK SPRITESHEET ASAL ANDA
+// 2. LUKISAN PIXEL ART TERBINA DALAM (IKUT GAMBAR ANDA)
 // =========================================================
-const spriteImg = new Image();
-spriteImg.src = "spritesheet.png"; // Pastikan nama fail gambar anda sama dengan ini
+const PALET = {
+    'H': '#141414', // Garis luar hitam
+    'R': '#e62e2d', // Merah (Bandana / Baju / Bumbung)
+    'C': '#6e3b23', // Coklat (Rambut / Kayu)
+    'K': '#f7b279', // Warna kulit
+    'Y': '#ffd100', // Kuning (Tali pinggang / Mahkota)
+    'B': '#1d9bf0', // Biru (Rambut Puteri / Dinding Rumah)
+    'P': '#ff70a6', // Merah jambu (Baju Puteri)
+    'W': '#ffffff', // Putih (Tengkorak / Mata)
+    'G': '#9da3a4', // Kelabu (Bayang Tengkorak)
+    'D': '#1b7a38', // Hijau gelap (Pokok)
+    'L': '#4cd137'  // Hijau cerah (Daun)
+};
 
-// Saiz 1 petak sprite dalam gambar asal (anda boleh laras jika saiz piksel berbeza, cth: 16 atau 32)
-const S = 16; 
-
-// Koordinat (kolum, baris) mengikut susunan gambar anda
-const SPRITES = {
-    playerDown:  { col: 0, row: 0 }, // Watak lelaki menghadap depan
-    playerUp:    { col: 4, row: 0 }, // Watak lelaki membelakang
-    playerRight: { col: 7, row: 1 }, // Watak lelaki ke kanan
-    playerLeft:  { col: 3, row: 2 }, // Watak lelaki ke kiri
-    houseRed:    { col: 5, row: 3 }, // Rumah bumbung merah
-    npcPrincess: { col: 7, row: 3 }, // Puteri rambut biru (NPC)
-    enemySkull:  { col: 1, row: 6 }, // Raksasa tengkorak
-    tree:        { col: 8, row: 7 }  // Pokok
+const ART = {
+    // Hero Depan (Bandana Merah)
+    playerDown: [
+        "....HHHHHH......",
+        "...HRRRRRRH.....",
+        "..HRRCHHCRRH....",
+        "..HCCCHHCCCH....",
+        ".HKKKKKKKKKKH...",
+        ".HKKHKKKKHKKH...",
+        "..HKKKKKKKKH....",
+        "...HHHHHHHH.....",
+        "..HRRRRRRRRH....",
+        ".HKRRRRRRRRKH...",
+        ".HKRYYYYYYRKH...",
+        "..HRRRRRRRRH....",
+        "...HHHHHHHH.....",
+        "...HHH..HHH.....",
+        "...HHH..HHH.....",
+        "................"
+    ],
+    // Hero Belakang
+    playerUp: [
+        "....HHHHHH......",
+        "...HCCCCCCCH....",
+        "..HCCRRRRRCCH...",
+        ".HCCCCRRCCCCCH..",
+        ".HCCCCCCCCCCCH..",
+        ".HCCCCCCCCCCCH..",
+        "..HCCCCCCCCCH...",
+        "...HHHHHHHH.....",
+        "..HRRRRRRRRH....",
+        ".HKRRRRRRRRKH...",
+        ".HKRRRRRRRRKH...",
+        "..HRRRRRRRRH....",
+        "...HHHHHHHH.....",
+        "...HHH..HHH.....",
+        "...HHH..HHH.....",
+        "................"
+    ],
+    // Hero Kiri
+    playerLeft: [
+        "....HHHHHH......",
+        "...HRRRRRRH.....",
+        "..HRRCHHCCCH....",
+        "..HCCCCCCCCCH...",
+        "..HKKKKKKCCCH...",
+        "..HKHKKKKCCCH...",
+        "...HKKKKKCH.....",
+        "....HHHHHH......",
+        "...HRRRRRRH.....",
+        "...HRRKKRRH.....",
+        "...HRYYYYRH.....",
+        "...HRRRRRRH.....",
+        "....HHHHHH......",
+        "....HHH.HHH.....",
+        "....HHH.HHH.....",
+        "................"
+    ],
+    // Hero Kanan
+    playerRight: [
+        "......HHHHHH....",
+        ".....HRRRRRRH...",
+        "....HCCCHHCRRH..",
+        "...HCCCCCCCCCH..",
+        "...HCCCKKKKKKH..",
+        "...HCCCKKKKHKH..",
+        ".....HCKKKKKH...",
+        "......HHHHHH....",
+        ".....HRRRRRRH...",
+        ".....HRRKKRRH...",
+        ".....HRYYYYRH...",
+        ".....HRRRRRRH...",
+        "......HHHHHH....",
+        ".....HHH.HHH....",
+        ".....HHH.HHH....",
+        "................"
+    ],
+    // NPC Puteri Bermahkota
+    npcPrincess: [
+        "......HYYH......",
+        ".....HYYYYH.....",
+        "....HBBBBBBH....",
+        "...HBBBBBBBBH...",
+        "..HBBKKKKKKBBH..",
+        "..HBBKHKKHKBBH..",
+        "..HBBBKKKKBBBH..",
+        "...HBHHHHHHBH...",
+        "...HBPPPPPPBH...",
+        "..HBBPYYYYPBBH..",
+        "..HBBPPPPPPBBH..",
+        "...HBPPPPPPBH...",
+        "...HHHHHHHHHH...",
+        ".....HH..HH.....",
+        "................",
+        "................"
+    ],
+    // Musuh Tengkorak Terapung
+    enemySkull: [
+        "....HHHHHHHH....",
+        "...HWWWWWWWWH...",
+        "..HWWWWWWWWWWH..",
+        "..HWWWWWWWWWWH..",
+        "..HWWGGWWGGWWH..",
+        "..HWWHHWWWHWWH..",
+        "..HWWHHWWWHWWH..",
+        "...HWWWWWWWWH...",
+        "...HWWWHHWWWH...",
+        "....HWWWWWWWH...",
+        "..HHHWWWWWWWHHH.",
+        ".HWWWHHHHHHHWWWH",
+        "..HHH.HHHHH.HHH.",
+        ".....HHHHHHH....",
+        "......HHHHH.....",
+        "................"
+    ],
+    // Rumah Bumbung Merah
+    houseRed: [
+        "....HHHHHHHH....",
+        "...HRRRRRRRRH...",
+        "..HRRRRRRRRRRH..",
+        ".HRRRRRRRRRRRRH.",
+        "HRRRRRRRRRRRRRRH",
+        "HHHHHHHHHHHHHHHH",
+        ".HBBBBBBBBBBBBH.",
+        ".HBWWHCCCCWWHBH.",
+        ".HBWWHCYYCWWHBH.",
+        ".HBBBBCCCCBBBBH.",
+        ".HBBBBCCCCBBBBH.",
+        ".HBBBBCCCCBBBBH.",
+        "HHHHHHHHHHHHHHHH",
+        "................",
+        "................",
+        "................"
+    ],
+    // Pokok
+    tree: [
+        "......HHHH......",
+        "....HHLLLLHH....",
+        "...HLLLLLLLLH...",
+        "..HLLDLLLLDLLH..",
+        ".HLLLLLLLLLLLLH.",
+        ".HLLDLLLLLLDLLH.",
+        "HLLLLLLLLLLLLLLH",
+        "HDDDDDDDDDDDDDDH",
+        ".HHHHHHHHHHHHHH.",
+        ".....HCCCCH.....",
+        ".....HCCCCH.....",
+        "....HHCCCCHH....",
+        "....HHHHHHHH....",
+        "................",
+        "................",
+        "................"
+    ]
 };
 
 function lukisSprite(ctx, namaSprite, dx, dy, dSize) {
-    let sp = SPRITES[namaSprite];
-    if (spriteImg.complete && spriteImg.naturalWidth > 0) {
-        ctx.drawImage(
-            spriteImg,
-            sp.col * S, sp.row * S, S, S,
-            dx, dy, dSize, dSize
-        );
-    } else {
-        // Warna ganti sementara jika fail spritesheet.png belum diletakkan
-        ctx.fillStyle = namaSprite.includes("player") ? "#e63946" :
-                        namaSprite === "npcPrincess" ? "#ffafcc" :
-                        namaSprite === "houseRed" ? "#d62828" :
-                        namaSprite === "enemySkull" ? "#f8f9fa" : "#2d6a4f";
-        ctx.fillRect(dx + 4, dy + 4, dSize - 8, dSize - 8);
+    const grid = ART[namaSprite];
+    const pxSize = dSize / 16;
+    for (let r = 0; r < 16; r++) {
+        for (let c = 0; c < 16; c++) {
+            let kod = grid[r][c];
+            if (kod !== '.' && PALET[kod]) {
+                ctx.fillStyle = PALET[kod];
+                ctx.fillRect(dx + c * pxSize, dy + r * pxSize, Math.ceil(pxSize), Math.ceil(pxSize));
+            }
+        }
     }
 }
 
@@ -284,7 +429,7 @@ const ctx = canvas.getContext("2d");
 const TILE = 32;
 
 let player = { x: 1, y: 2, dir: "playerDown", hp: 100, maxHp: 100, lv: 1, xp: 0, score: 0 };
-let modSemasa = "PETA"; // PETA, DIALOG, BATTLE
+let modSemasa = "PETA";
 let musuh = null;
 let tindakanA = null;
 
@@ -296,14 +441,15 @@ function lukisSemua() {
             let x = c * TILE, y = r * TILE;
             let sel = peta[r][c];
 
-            // Tanah rumput cerah
             ctx.fillStyle = "#80ed99";
             ctx.fillRect(x, y, TILE, TILE);
 
             if (sel === 2) {
-                // Rumput liar gelap (kawasan raksasa)
                 ctx.fillStyle = "#38b000";
                 ctx.fillRect(x + 2, y + 2, TILE - 4, TILE - 4);
+                ctx.fillStyle = "#2b9348";
+                ctx.fillRect(x + 6, y + 10, 4, 12);
+                ctx.fillRect(x + 18, y + 8, 4, 14);
             } else if (sel === 1) {
                 lukisSprite(ctx, "tree", x, y, TILE);
             } else if (sel === 3) {
@@ -314,7 +460,6 @@ function lukisSemua() {
         }
     }
 
-    // Lukis Watak Utama mengikut arah terkini
     lukisSprite(ctx, player.dir, player.x * TILE, player.y * TILE, TILE);
 }
 
@@ -330,16 +475,14 @@ function gerak(dx, dy) {
     let ny = player.y + dy;
     let sasaran = peta[ny][nx];
 
-    // Jika berjumpa NPC Puteri (4)
     if (sasaran === 4) {
         lukisSemua();
-        bukaDialog("PUTERI: Selamat datang wira! Pergi ke rumput gelap dan kalahkan Hantu Ilmu dengan menjawab soalan! [Tekan A]", () => {
+        bukaDialog("PUTERI: Selamat datang wira! Pergi ke rumput gelap dan kalahkan Hantu Tengkorak dengan menjawab soalan! [Tekan A]", () => {
             tutupDialog();
         });
         return;
     }
 
-    // Jika bergerak ke ruang kosong (0) atau rumput liar (2)
     if (sasaran === 0 || sasaran === 2) {
         player.x = nx;
         player.y = ny;
@@ -379,7 +522,6 @@ function mulaPertempuran() {
     document.getElementById("battle-hud").style.display = "flex";
     kemaskiniHP();
 
-    // Lukis sprite musuh & pemain di skrin pertempuran
     const eCtx = document.getElementById("enemySpriteCanvas").getContext("2d");
     eCtx.clearRect(0, 0, 64, 64);
     lukisSprite(eCtx, "enemySkull", 0, 0, 64);
@@ -405,8 +547,12 @@ function paparSoalan() {
         btn.className = "ans-btn";
         btn.innerText = pil;
         btn.onclick = () => semakJawapan(pil, q.jawapan);
-        box.appendChild(btn);
+        containerAppend(box, btn);
     });
+}
+
+function containerAppend(box, btn) {
+    box.appendChild(btn);
 }
 
 function semakJawapan(dipilih, betul) {
@@ -477,7 +623,6 @@ window.addEventListener("keydown", e => {
     if (e.key === "Escape") tekanB();
 });
 
-spriteImg.onload = lukisSemua;
 lukisSemua();
 </script>
 </body>
