@@ -3,17 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>EduMon Pixel - RPG Mata Pelajaran</title>
+    <title>EduQuest RPG - Custom Sprite</title>
     <style>
-        * {
-            box-sizing: border-box;
-            user-select: none;
-            -webkit-tap-highlight-color: transparent;
-        }
-
+        * { box-sizing: border-box; user-select: none; }
         body {
-            background-color: #202028;
-            color: #f8f8f2;
+            background-color: #181820;
+            color: #fff;
             font-family: 'Courier New', Courier, monospace;
             display: flex;
             flex-direction: column;
@@ -21,53 +16,24 @@
             justify-content: center;
             min-height: 100vh;
             margin: 0;
-            padding: 10px;
         }
 
-        /* Rangka Konsol Game Boy */
-        .console-body {
-            background-color: #c4c4cc;
-            border: 4px solid #7a7a85;
-            border-radius: 15px 15px 45px 15px;
-            padding: 18px;
-            box-shadow: 0 12px 30px rgba(0,0,0,0.6), inset -4px -4px 0px #9696a0;
-            max-width: 440px;
+        .console {
+            background: #2b2d42;
+            border: 4px solid #8d99ae;
+            border-radius: 16px;
+            padding: 16px;
+            max-width: 430px;
             width: 100%;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.7);
         }
 
-        .screen-bezel {
-            background-color: #555562;
-            padding: 14px 14px 22px 14px;
-            border-radius: 10px 10px 30px 10px;
-            border: 3px solid #383842;
-        }
-
-        .screen-header {
-            display: flex;
-            justify-content: space-between;
-            font-size: 11px;
-            color: #b8b8c4;
-            margin-bottom: 6px;
-            font-weight: bold;
-            letter-spacing: 1px;
-        }
-
-        .battery-dot {
-            display: inline-block;
-            width: 8px;
-            height: 8px;
-            background-color: #ff3b30;
-            border-radius: 50%;
-            box-shadow: 0 0 6px #ff3b30;
-            margin-right: 4px;
-        }
-
-        #game-viewport {
+        #screen-wrapper {
             position: relative;
             width: 100%;
             aspect-ratio: 1 / 1;
-            background-color: #8bac0f;
-            border: 3px solid #1e2412;
+            border: 4px solid #111;
+            background: #58b158;
             overflow: hidden;
         }
 
@@ -78,126 +44,90 @@
             image-rendering: pixelated;
         }
 
-        /* Skrin Pertempuran Gaya Pokémon */
-        #battle-screen {
+        /* Kotak Dialog NPC / Pertempuran */
+        #ui-overlay {
+            display: none;
+            position: absolute;
+            bottom: 0; left: 0;
+            width: 100%;
+            background: rgba(15, 20, 35, 0.95);
+            border-top: 3px solid #ffd166;
+            padding: 10px;
+            color: #fff;
+        }
+
+        #battle-hud {
             display: none;
             position: absolute;
             top: 0; left: 0;
-            width: 100%; height: 100%;
-            background: linear-gradient(to bottom, #9bbc0f 0%, #9bbc0f 62%, #8bac0f 62%, #8bac0f 100%);
-            color: #0f380f;
+            width: 100%; height: 65%;
+            background: linear-gradient(to bottom, #72efdd 55%, #58b158 55%);
+            padding: 12px;
             flex-direction: column;
             justify-content: space-between;
-            padding: 10px;
         }
 
-        .battle-row {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .poke-box {
-            background: #e0f8d0;
-            border: 3px solid #0f380f;
-            border-radius: 4px;
+        .stat-card {
+            background: #fff;
+            color: #111;
+            border: 3px solid #111;
+            border-radius: 6px;
             padding: 5px 8px;
-            width: 56%;
+            width: 55%;
             font-weight: bold;
             font-size: 12px;
-            box-shadow: 2px 2px 0px #306230;
         }
 
-        .hp-track {
-            width: 100%;
-            height: 8px;
-            background: #306230;
-            border: 1px solid #0f380f;
-            margin-top: 4px;
+        .hp-bar {
+            width: 100%; height: 8px;
+            background: #ccc; margin-top: 4px;
+            border: 1px solid #111;
         }
 
         .hp-fill {
-            height: 100%;
-            background: #0f380f;
-            width: 100%;
-            transition: width 0.25s ease;
-        }
-
-        .battle-canvas {
-            width: 84px !important;
-            height: 84px !important;
-        }
-
-        /* Kotak Soalan & Dialog */
-        #dialogue-box {
-            background: #e0f8d0;
-            border: 3px solid #0f380f;
-            border-radius: 4px;
-            padding: 8px;
-            min-height: 118px;
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
-        }
-
-        #question-text {
-            font-size: 12px;
-            font-weight: bold;
-            line-height: 1.3;
-            margin-bottom: 6px;
+            height: 100%; background: #06d6a0;
+            width: 100%; transition: width 0.2s;
         }
 
         .options-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
-            gap: 5px;
+            gap: 6px;
+            margin-top: 8px;
         }
 
-        .ans-btn {
-            background: #9bbc0f;
-            color: #0f380f;
-            border: 2px solid #0f380f;
-            padding: 5px 4px;
+        button.ans-btn {
+            background: #3d405b;
+            color: #fff;
+            border: 2px solid #ffd166;
+            padding: 6px;
             font-family: inherit;
-            font-size: 11px;
-            font-weight: bold;
-            cursor: pointer;
-            text-align: left;
-        }
-
-        .ans-btn:hover, .ans-btn:active {
-            background: #0f380f;
-            color: #e0f8d0;
-        }
-
-        #battle-msg {
             font-size: 12px;
             font-weight: bold;
-            display: none;
-            line-height: 1.4;
+            cursor: pointer;
         }
 
-        /* Bar Status Bawah Skrin */
+        button.ans-btn:hover { background: #ffd166; color: #111; }
+
         .hud-bar {
             display: flex;
             justify-content: space-between;
+            background: #111;
+            padding: 6px 12px;
             margin-top: 8px;
-            font-size: 12px;
+            border-radius: 6px;
+            font-size: 13px;
+            color: #ffd166;
             font-weight: bold;
-            color: #202028;
-            background: #9bbc0f;
-            padding: 4px 10px;
-            border: 2px solid #0f380f;
-            border-radius: 4px;
         }
 
-        /* Kawalan Butang Fizikal (D-Pad & A/B) */
-        .controls-area {
+        /* Butang Kawalan */
+        .controls {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-top: 22px;
-            padding: 0 10px 10px 10px;
+            margin-top: 16px;
+            padding: 0 10px;
         }
 
         .dpad {
@@ -207,483 +137,348 @@
             gap: 2px;
         }
 
-        .dpad-btn {
-            background: #2b2b33;
-            color: #888;
-            border: 2px solid #18181d;
+        .dpad button {
+            background: #1a1a24;
+            color: #fff;
+            border: 2px solid #4a4e69;
             border-radius: 6px;
             font-size: 16px;
-            font-weight: bold;
             cursor: pointer;
-            box-shadow: 0 4px 0 #141418;
-            display: flex;
-            align-items: center;
-            justify-content: center;
         }
 
-        .dpad-btn:active {
-            transform: translateY(3px);
-            box-shadow: 0 1px 0 #141418;
-            color: #fff;
-        }
+        .dpad button:active { background: #ffd166; color: #111; }
 
-        .dpad-center {
-            background: #23232a;
-            border-radius: 4px;
-        }
-
-        .action-buttons {
-            display: flex;
-            gap: 14px;
-            transform: rotate(-18deg);
-        }
-
-        .round-btn {
-            width: 52px;
-            height: 52px;
+        .ab-btns { display: flex; gap: 12px; }
+        .ab-btns button {
+            width: 50px; height: 50px;
             border-radius: 50%;
-            background: #9b1b48;
-            color: #f8d0dc;
-            border: 3px solid #5e0d2a;
-            font-family: inherit;
+            background: #ef476f;
+            color: #fff;
+            border: 3px solid #9e1938;
             font-weight: bold;
             font-size: 16px;
             cursor: pointer;
-            box-shadow: 0 5px 0 #4a0820;
-        }
-
-        .round-btn:active {
-            transform: translateY(4px);
-            box-shadow: 0 1px 0 #4a0820;
-        }
-
-        .btn-label {
-            text-align: center;
-            font-size: 10px;
-            color: #4a4a55;
-            font-weight: bold;
-            margin-top: 4px;
         }
     </style>
 </head>
 <body>
 
-<div class="console-body">
-    <div class="screen-bezel">
-        <div class="screen-header">
-            <span><span class="battery-dot"></span>EDUMON PIXEL</span>
-            <span>MATA PELAJARAN EDITION</span>
-        </div>
+<div class="console">
+    <div id="screen-wrapper">
+        <canvas id="gameCanvas" width="384" height="384"></canvas>
 
-        <div id="game-viewport">
-            <!-- Kanvas Peta Dunia -->
-            <canvas id="mapCanvas" width="384" height="384"></canvas>
-
-            <!-- Skrin Pertempuran -->
-            <div id="battle-screen">
-                <div class="battle-row">
-                    <div class="poke-box">
-                        <div id="enemy-name">RAKSASA</div>
-                        <div class="hp-track"><div id="enemy-hp" class="hp-fill"></div></div>
-                    </div>
-                    <canvas id="enemyCanvas" class="battle-canvas" width="64" height="64"></canvas>
+        <!-- Paparan Pertempuran -->
+        <div id="battle-hud">
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+                <div class="stat-card">
+                    <div id="enemy-name">HANTU TENGKORAK</div>
+                    <div class="hp-bar"><div id="enemy-hp" class="hp-fill"></div></div>
                 </div>
-
-                <div class="battle-row">
-                    <canvas id="playerBattleCanvas" class="battle-canvas" width="64" height="64"></canvas>
-                    <div class="poke-box">
-                        <div>PELAJAR Lv.<span id="player-lv">1</span></div>
-                        <div class="hp-track"><div id="player-hp" class="hp-fill"></div></div>
-                    </div>
-                </div>
-
-                <div id="dialogue-box">
-                    <div id="quiz-area">
-                        <div id="question-text">Soalan muncul di sini...</div>
-                        <div class="options-grid" id="options-container"></div>
-                    </div>
-                    <div id="battle-msg"></div>
+                <canvas id="enemySpriteCanvas" width="64" height="64" style="width:72px;height:72px;"></canvas>
+            </div>
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+                <canvas id="playerSpriteCanvas" width="64" height="64" style="width:72px;height:72px;"></canvas>
+                <div class="stat-card">
+                    <div>HERO Lv.<span id="b-lv">1</span></div>
+                    <div class="hp-bar"><div id="player-hp" class="hp-fill"></div></div>
                 </div>
             </div>
         </div>
 
-        <div class="hud-bar">
-            <span>LV: <span id="hud-lv">1</span></span>
-            <span>XP: <span id="hud-xp">0</span>/100</span>
-            <span>MENANG: <span id="hud-wins">0</span></span>
+        <!-- Kotak Dialog & Soalan -->
+        <div id="ui-overlay">
+            <div id="dialog-text" style="font-size:13px; line-height:1.4;"></div>
+            <div id="options-box" class="options-grid"></div>
         </div>
     </div>
 
-    <!-- Bahagian Butang Kawalan -->
-    <div class="controls-area">
-        <div class="dpad">
-            <div></div>
-            <button class="dpad-btn" onclick="gerakPemain(0, -1)">▲</button>
-            <div></div>
-            <button class="dpad-btn" onclick="gerakPemain(-1, 0)">◀</button>
-            <div class="dpad-center"></div>
-            <button class="dpad-btn" onclick="gerakPemain(1, 0)">▶</button>
-            <div></div>
-            <button class="dpad-btn" onclick="gerakPemain(0, 1)">▼</button>
-            <div></div>
-        </div>
+    <div class="hud-bar">
+        <span>LV: <span id="hud-lv">1</span></span>
+        <span>XP: <span id="hud-xp">0</span>/100</span>
+        <span>SKOR: <span id="hud-score">0</span></span>
+    </div>
 
-        <div class="action-buttons">
-            <div>
-                <button class="round-btn" onclick="tekanButangB()">B</button>
-                <div class="btn-label">LARI</div>
-            </div>
-            <div>
-                <button class="round-btn" onclick="tekanButangA()">A</button>
-                <div class="btn-label">TERUSKAN</div>
-            </div>
+    <div class="controls">
+        <div class="dpad">
+            <div></div><button onclick="gerak(0,-1)">▲</button><div></div>
+            <button onclick="gerak(-1,0)">◀</button><div></div><button onclick="gerak(1,0)">▶</button>
+            <div></div><button onclick="gerak(0,1)">▼</button><div></div>
+        </div>
+        <div class="ab-btns">
+            <button onclick="tekanB()">B</button>
+            <button onclick="tekanA()">A</button>
         </div>
     </div>
 </div>
 
 <script>
 // =========================================================
-// 1. BANK SOALAN MATA PELAJARAN (EDIT DI SINI)
+// 1. SOALAN MATA PELAJARAN (UBAH SUAI DI SINI)
 // =========================================================
 const bankSoalan = [
-    {
-        soalan: "MATEMATIK: 15 × 6 = ?",
-        pilihan: ["80", "90", "95", "75"],
-        jawapan: "90"
-    },
-    {
-        soalan: "SAINS: Planet paling dekat dengan Matahari?",
-        pilihan: ["Zuhrah", "Utarid", "Marikh", "Bumi"],
-        jawapan: "Utarid"
-    },
-    {
-        soalan: "SEJARAH: Tahun penubuhan Malaysia?",
-        pilihan: ["1957", "1963", "1965", "1946"],
-        jawapan: "1963"
-    },
-    {
-        soalan: "B. MELAYU: Sinonim bagi perkataan 'pintar'?",
-        pilihan: ["Cerdik", "Lembap", "Cuai", "Malas"],
-        jawapan: "Cerdik"
-    },
-    {
-        soalan: "ENGLISH: Past tense of 'go' is...",
-        pilihan: ["Goed", "Gone", "Went", "Going"],
-        jawapan: "Went"
-    }
+    { soalan: "MATEMATIK: 24 ÷ 3 + 5 = ?", pilihan: ["11", "13", "8", "15"], jawapan: "13" },
+    { soalan: "SAINS: Haiwan yang makan tumbuhan sahaja dipanggil...", pilihan: ["Karnivor", "Herbivor", "Omnivor", "Mamalia"], jawapan: "Herbivor" },
+    { soalan: "SEJARAH: Siapakah Bapa Kemerdekaan Malaysia?", pilihan: ["Tun Razak", "Tunku Abdul Rahman", "Tun Mahathir", "Onn Jaafar"], jawapan: "Tunku Abdul Rahman" },
+    { soalan: "B. MELAYU: Penjodoh bilangan untuk sebatang sungai ialah...", pilihan: ["Buah", "Batang", "Urat", "Bilah"], jawapan: "Batang" }
 ];
 
 // =========================================================
-// 2. DATA PIXEL ART (ORANG & RAKSASA)
+// 2. MUAT NAIK SPRITESHEET ASAL ANDA
 // =========================================================
-// Kod Warna: .=Kosong, R=Merah(Topi/Baju), K=Kulit, H=Hitam(Rambut/Mata), B=Biru(Seluar), P=Putih, U=Ungu, O=Oren
-const paletWarna = {
-    'R': '#d92638',
-    'K': '#f7c59f',
-    'H': '#1a1c2c',
-    'B': '#2952a3',
-    'P': '#ffffff',
-    'U': '#7b2cbf',
-    'O': '#f77f00',
-    'G': '#2b9348'
+const spriteImg = new Image();
+spriteImg.src = "spritesheet.png"; // Pastikan nama fail gambar anda sama dengan ini
+
+// Saiz 1 petak sprite dalam gambar asal (anda boleh laras jika saiz piksel berbeza, cth: 16 atau 32)
+const S = 16; 
+
+// Koordinat (kolum, baris) mengikut susunan gambar anda
+const SPRITES = {
+    playerDown:  { col: 0, row: 0 }, // Watak lelaki menghadap depan
+    playerUp:    { col: 4, row: 0 }, // Watak lelaki membelakang
+    playerRight: { col: 7, row: 1 }, // Watak lelaki ke kanan
+    playerLeft:  { col: 3, row: 2 }, // Watak lelaki ke kiri
+    houseRed:    { col: 5, row: 3 }, // Rumah bumbung merah
+    npcPrincess: { col: 7, row: 3 }, // Puteri rambut biru (NPC)
+    enemySkull:  { col: 1, row: 6 }, // Raksasa tengkorak
+    tree:        { col: 8, row: 7 }  // Pokok
 };
 
-// Sprite Orang Pixel (Trainer 12x14)
-const spriteOrang = [
-    "....RRRR....",
-    "...RRRRRR...",
-    "...RRRRPP...",
-    "...HHHHHH...",
-    "..HKKKKKKH..",
-    "..HKHKKHKH..",
-    "...KKKKKK...",
-    "..RRRRRRRR..",
-    ".KRRRRRRRRK.",
-    ".K.RRRRRR.K.",
-    "...BBBBBB...",
-    "...BB..BB...",
-    "...BB..BB...",
-    "..HH....HH.."
-];
-
-// Sprite Raksasa 1: Slime Api (12x12)
-const spriteSlime = [
-    ".....OO.....",
-    "....OOOO....",
-    "...OOOOOO...",
-    "..OOOOOOOO..",
-    ".OOOOOOOOOO.",
-    ".OOHHOOHOOO.",
-    "OOOHHOOHOOOO",
-    "OOOOOOOOOOOO",
-    "OOORRRRRROOO",
-    ".OOOOOOOOOO.",
-    "..OOOOOOOO..",
-    "............"
-];
-
-// Sprite Raksasa 2: Hantu Ungu (12x12)
-const spriteHantu = [
-    "....UUUU....",
-    "..UUUUUUUU..",
-    ".UUUUUUUUUU.",
-    ".UUPPUUPPUU.",
-    "UUUPHUUPHUUU",
-    "UUUUUUUUUUUU",
-    "UUUHHHHHHUUU",
-    "UUUUUUUUUUUU",
-    "UUUUUUUUUUUU",
-    ".UU.UUUU.UU.",
-    ".U...UU...U.",
-    "............"
-];
-
-function lukisPixelArt(ctx, grid, xMula, yMula, saizPiksel) {
-    for (let r = 0; r < grid.length; r++) {
-        for (let c = 0; c < grid[r].length; c++) {
-            let kod = grid[r][c];
-            if (kod !== '.' && paletWarna[kod]) {
-                ctx.fillStyle = paletWarna[kod];
-                ctx.fillRect(
-                    xMula + (c * saizPiksel),
-                    yMula + (r * saizPiksel),
-                    saizPiksel,
-                    saizPiksel
-                );
-            }
-        }
+function lukisSprite(ctx, namaSprite, dx, dy, dSize) {
+    let sp = SPRITES[namaSprite];
+    if (spriteImg.complete && spriteImg.naturalWidth > 0) {
+        ctx.drawImage(
+            spriteImg,
+            sp.col * S, sp.row * S, S, S,
+            dx, dy, dSize, dSize
+        );
+    } else {
+        // Warna ganti sementara jika fail spritesheet.png belum diletakkan
+        ctx.fillStyle = namaSprite.includes("player") ? "#e63946" :
+                        namaSprite === "npcPrincess" ? "#ffafcc" :
+                        namaSprite === "houseRed" ? "#d62828" :
+                        namaSprite === "enemySkull" ? "#f8f9fa" : "#2d6a4f";
+        ctx.fillRect(dx + 4, dy + 4, dSize - 8, dSize - 8);
     }
 }
 
 // =========================================================
-// 3. TETAPAN PETA & PERGERAKAN
+// 3. PETA DUNIA (0=Rumput, 1=Pokok, 2=Rumput Liar, 3=Rumah, 4=NPC Puteri)
 // =========================================================
-// 0 = Jalan, 1 = Pokok, 2 = Rumput Liar (Tempat Raksasa)
 const peta = [
     [1,1,1,1,1,1,1,1,1,1,1,1],
-    [1,0,0,0,2,2,2,0,0,0,0,1],
-    [1,0,0,0,2,2,2,0,1,1,0,1],
-    [1,0,1,0,0,0,0,0,0,0,0,1],
-    [1,0,1,0,0,0,0,2,2,2,0,1],
-    [1,0,0,0,0,0,0,2,2,2,0,1],
-    [1,2,2,2,0,1,0,2,2,2,0,1],
-    [1,2,2,2,0,1,0,0,0,0,0,1],
-    [1,2,2,2,0,0,0,0,1,0,0,1],
-    [1,0,0,0,0,2,2,0,1,0,0,1],
-    [1,0,0,0,0,2,2,0,0,0,0,1],
+    [1,0,0,3,0,0,0,2,2,2,0,1],
+    [1,0,0,4,0,0,0,2,2,2,0,1],
+    [1,0,0,0,0,1,0,0,0,0,0,1],
+    [1,0,1,0,0,1,0,0,2,2,0,1],
+    [1,0,0,0,0,0,0,0,2,2,0,1],
+    [1,2,2,2,0,0,1,0,0,0,0,1],
+    [1,2,2,2,0,0,1,0,0,0,0,1],
+    [1,0,0,0,0,0,0,0,2,2,2,1],
+    [1,0,0,1,0,0,0,0,2,2,2,1],
+    [1,0,0,1,0,0,0,0,0,0,0,1],
     [1,1,1,1,1,1,1,1,1,1,1,1]
 ];
 
-const mapCanvas = document.getElementById("mapCanvas");
-const mapCtx = mapCanvas.getContext("2d");
-const tileSize = 32; // 12 x 32 = 384px
+const canvas = document.getElementById("gameCanvas");
+const ctx = canvas.getContext("2d");
+const TILE = 32;
 
-let player = { x: 1, y: 1, hp: 100, maxHp: 100, lv: 1, xp: 0, wins: 0 };
-let dalamPertempuran = false;
-let menungguButangA = false;
-let tindakanSelepasA = null;
-let musuhSemasa = null;
+let player = { x: 1, y: 2, dir: "playerDown", hp: 100, maxHp: 100, lv: 1, xp: 0, score: 0 };
+let modSemasa = "PETA"; // PETA, DIALOG, BATTLE
+let musuh = null;
+let tindakanA = null;
 
-function lukisPeta() {
-    mapCtx.clearRect(0, 0, mapCanvas.width, mapCanvas.height);
+function lukisSemua() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
 
     for (let r = 0; r < 12; r++) {
         for (let c = 0; c < 12; c++) {
-            let x = c * tileSize;
-            let y = r * tileSize;
-            let jenis = peta[r][c];
+            let x = c * TILE, y = r * TILE;
+            let sel = peta[r][c];
 
-            // Latar tanah hijau Game Boy
-            mapCtx.fillStyle = "#9bbc0f";
-            mapCtx.fillRect(x, y, tileSize, tileSize);
+            // Tanah rumput cerah
+            ctx.fillStyle = "#80ed99";
+            ctx.fillRect(x, y, TILE, TILE);
 
-            if (jenis === 1) {
-                // Lukis Pokok Pixel
-                mapCtx.fillStyle = "#0f380f";
-                mapCtx.fillRect(x + 6, y + 4, 20, 18);
-                mapCtx.fillStyle = "#306230";
-                mapCtx.fillRect(x + 8, y + 6, 16, 12);
-                mapCtx.fillStyle = "#0f380f";
-                mapCtx.fillRect(x + 13, y + 22, 6, 8);
-            } else if (jenis === 2) {
-                // Lukis Rumput Tinggi Pixel
-                mapCtx.fillStyle = "#306230";
-                mapCtx.fillRect(x + 4, y + 14, 4, 14);
-                mapCtx.fillRect(x + 12, y + 10, 4, 18);
-                mapCtx.fillRect(x + 20, y + 14, 4, 14);
-                mapCtx.fillRect(x + 26, y + 16, 3, 12);
+            if (sel === 2) {
+                // Rumput liar gelap (kawasan raksasa)
+                ctx.fillStyle = "#38b000";
+                ctx.fillRect(x + 2, y + 2, TILE - 4, TILE - 4);
+            } else if (sel === 1) {
+                lukisSprite(ctx, "tree", x, y, TILE);
+            } else if (sel === 3) {
+                lukisSprite(ctx, "houseRed", x, y, TILE);
+            } else if (sel === 4) {
+                lukisSprite(ctx, "npcPrincess", x, y, TILE);
             }
         }
     }
 
-    // Lukis Watak Orang Pixel di atas Peta (skala piksel = 2)
-    lukisPixelArt(mapCtx, spriteOrang, player.x * tileSize + 4, player.y * tileSize + 2, 2);
+    // Lukis Watak Utama mengikut arah terkini
+    lukisSprite(ctx, player.dir, player.x * TILE, player.y * TILE, TILE);
 }
 
-function gerakPemain(dx, dy) {
-    if (dalamPertempuran) return;
+function gerak(dx, dy) {
+    if (modSemasa !== "PETA") return;
+
+    if (dy === -1) player.dir = "playerUp";
+    if (dy === 1)  player.dir = "playerDown";
+    if (dx === -1) player.dir = "playerLeft";
+    if (dx === 1)  player.dir = "playerRight";
 
     let nx = player.x + dx;
     let ny = player.y + dy;
+    let sasaran = peta[ny][nx];
 
-    if (peta[ny][nx] !== 1) {
+    // Jika berjumpa NPC Puteri (4)
+    if (sasaran === 4) {
+        lukisSemua();
+        bukaDialog("PUTERI: Selamat datang wira! Pergi ke rumput gelap dan kalahkan Hantu Ilmu dengan menjawab soalan! [Tekan A]", () => {
+            tutupDialog();
+        });
+        return;
+    }
+
+    // Jika bergerak ke ruang kosong (0) atau rumput liar (2)
+    if (sasaran === 0 || sasaran === 2) {
         player.x = nx;
         player.y = ny;
-        lukisPeta();
+        lukisSemua();
 
-        // Jika pijak rumput liar (2), 35% peluang jumpa raksasa
-        if (peta[ny][nx] === 2 && Math.random() < 0.35) {
+        if (sasaran === 2 && Math.random() < 0.35) {
             mulaPertempuran();
         }
+    } else {
+        lukisSemua();
     }
 }
 
 // =========================================================
-// 4. SISTEM PERTEMPURAN & BUTANG A / B
+// 4. DIALOG & SISTEM PERTEMPURAN
 // =========================================================
-const senaraiRaksasa = [
-    { nama: "SLIME API", sprite: spriteSlime, maxHp: 60 },
-    { nama: "HANTU ILMU", sprite: spriteHantu, maxHp: 60 }
-];
+function bukaDialog(teks, selepasA) {
+    modSemasa = "DIALOG";
+    document.getElementById("ui-overlay").style.display = "block";
+    document.getElementById("options-box").innerHTML = "";
+    document.getElementById("dialog-text").innerText = teks;
+    tindakanA = selepasA;
+}
+
+function tutupDialog() {
+    document.getElementById("ui-overlay").style.display = "none";
+    modSemasa = "PETA";
+    tindakanA = null;
+}
 
 function mulaPertempuran() {
-    dalamPertempuran = true;
-    menungguButangA = false;
+    modSemasa = "BATTLE";
     player.hp = player.maxHp;
+    musuh = { nama: "HANTU TENGKORAK", hp: 60, maxHp: 60 };
 
-    let r = senaraiRaksasa[Math.floor(Math.random() * senaraiRaksasa.length)];
-    musuhSemasa = { nama: r.nama, sprite: r.sprite, hp: r.maxHp, maxHp: r.maxHp };
+    document.getElementById("b-lv").innerText = player.lv;
+    document.getElementById("battle-hud").style.display = "flex";
+    kemaskiniHP();
 
-    document.getElementById("enemy-name").innerText = musuhSemasa.nama;
-    document.getElementById("player-lv").innerText = player.lv;
-
-    // Lukis sprite pixel dalam skrin pertempuran
-    const eCtx = document.getElementById("enemyCanvas").getContext("2d");
+    // Lukis sprite musuh & pemain di skrin pertempuran
+    const eCtx = document.getElementById("enemySpriteCanvas").getContext("2d");
     eCtx.clearRect(0, 0, 64, 64);
-    lukisPixelArt(eCtx, musuhSemasa.sprite, 8, 8, 4);
+    lukisSprite(eCtx, "enemySkull", 0, 0, 64);
 
-    const pCtx = document.getElementById("playerBattleCanvas").getContext("2d");
+    const pCtx = document.getElementById("playerSpriteCanvas").getContext("2d");
     pCtx.clearRect(0, 0, 64, 64);
-    lukisPixelArt(pCtx, spriteOrang, 8, 4, 4);
+    lukisSprite(pCtx, "playerUp", 0, 0, 64);
 
-    kemaskiniNyawa();
-    document.getElementById("battle-screen").style.display = "flex";
-    paparMesejPertempuran(`${musuhSemasa.nama} liar muncul! Tekan [A] untuk mula.`, () => {
+    bukaDialog("HANTU TENGKORAK muncul! Jawab soalan untuk menyerang! [Tekan A]", () => {
         paparSoalan();
     });
 }
 
-function paparMesejPertempuran(teks, selepasA) {
-    document.getElementById("quiz-area").style.display = "none";
-    const msgBox = document.getElementById("battle-msg");
-    msgBox.style.display = "block";
-    msgBox.innerText = teks;
-    menungguButangA = true;
-    tindakanSelepasA = selepasA;
-}
-
 function paparSoalan() {
-    menungguButangA = false;
-    document.getElementById("battle-msg").style.display = "none";
-    document.getElementById("quiz-area").style.display = "block";
+    tindakanA = null;
+    let q = bankSoalan[Math.floor(Math.random() * bankSoalan.length)];
+    document.getElementById("dialog-text").innerText = q.soalan;
+    const box = document.getElementById("options-box");
+    box.innerHTML = "";
 
-    let s = bankSoalan[Math.floor(Math.random() * bankSoalan.length)];
-    document.getElementById("question-text").innerText = s.soalan;
-
-    const container = document.getElementById("options-container");
-    container.innerHTML = "";
-
-    s.pilihan.forEach((pil, idx) => {
+    q.pilihan.forEach(pil => {
         let btn = document.createElement("button");
         btn.className = "ans-btn";
-        btn.innerText = `${["A","B","C","D"][idx]}. ${pil}`;
-        btn.onclick = () => semakJawapan(pil, s.jawapan);
-        container.appendChild(btn);
+        btn.innerText = pil;
+        btn.onclick = () => semakJawapan(pil, q.jawapan);
+        box.appendChild(btn);
     });
 }
 
 function semakJawapan(dipilih, betul) {
+    document.getElementById("options-box").innerHTML = "";
     if (dipilih === betul) {
-        let dmg = 20 + (player.lv * 5);
-        musuhSemasa.hp -= dmg;
-        kemaskiniNyawa();
-
-        if (musuhSemasa.hp <= 0) {
-            paparMesejPertempuran(`TEPAT! Serangan ${dmg} dmg! ${musuhSemasa.nama} dikalahkan! [Tekan A]`, () => tamatPertempuran(true));
+        let dmg = 30;
+        musuh.hp -= dmg;
+        kemaskiniHP();
+        if (musuh.hp <= 0) {
+            bukaDialog("MENANG! Hantu dikalahkan (+50 XP)! [Tekan A]", () => tamatBattle(true));
         } else {
-            paparMesejPertempuran(`TEPAT! Anda menyerang ${musuhSemasa.nama} (-${dmg} HP)! [Tekan A]`, () => paparSoalan());
+            bukaDialog(`TEPAT! Serangan -${dmg} HP! [Tekan A]`, () => paparSoalan());
         }
     } else {
         player.hp -= 35;
-        kemaskiniNyawa();
-
+        kemaskiniHP();
         if (player.hp <= 0) {
-            paparMesejPertempuran(`SALAH! Jawapan: ${betul}. Anda pengsan! [Tekan A]`, () => tamatPertempuran(false));
+            bukaDialog(`SALAH! Jawapan: ${betul}. Anda kalah! [Tekan A]`, () => tamatBattle(false));
         } else {
-            paparMesejPertempuran(`SALAH! Jawapan: ${betul}. Musuh menyerang (-35 HP)! [Tekan A]`, () => paparSoalan());
+            bukaDialog(`SALAH! Jawapan: ${betul}. Musuh serang (-35 HP)! [Tekan A]`, () => paparSoalan());
         }
     }
 }
 
-function kemaskiniNyawa() {
-    document.getElementById("enemy-hp").style.width = Math.max(0, (musuhSemasa.hp / musuhSemasa.maxHp) * 100) + "%";
+function kemaskiniHP() {
+    document.getElementById("enemy-hp").style.width = Math.max(0, (musuh.hp / musuh.maxHp) * 100) + "%";
     document.getElementById("player-hp").style.width = Math.max(0, (player.hp / player.maxHp) * 100) + "%";
 }
 
-function tamatPertempuran(menang) {
+function tamatBattle(menang) {
     if (menang) {
-        player.wins++;
+        player.score += 100;
         player.xp += 50;
-        if (player.xp >= 100) {
-            player.lv++;
-            player.xp = 0;
-        }
+        if (player.xp >= 100) { player.lv++; player.xp = 0; }
     } else {
-        player.x = 1;
-        player.y = 1;
+        player.x = 1; player.y = 2;
     }
-
     document.getElementById("hud-lv").innerText = player.lv;
     document.getElementById("hud-xp").innerText = player.xp;
-    document.getElementById("hud-wins").innerText = player.wins;
-
-    document.getElementById("battle-screen").style.display = "none";
-    dalamPertempuran = false;
-    menungguButangA = false;
-    lukisPeta();
+    document.getElementById("hud-score").innerText = player.score;
+    document.getElementById("battle-hud").style.display = "none";
+    tutupDialog();
+    lukisSemua();
 }
 
-// Fungsi Butang A (Teruskan Dialog)
-function tekanButangA() {
-    if (dalamPertempuran && menungguButangA && tindakanSelepasA) {
-        let fn = tindakanSelepasA;
-        tindakanSelepasA = null;
+function tekanA() {
+    if (tindakanA) {
+        let fn = tindakanA;
+        tindakanA = null;
         fn();
     }
 }
 
-// Fungsi Butang B (Melarikan diri dari pertempuran)
-function tekanButangB() {
-    if (dalamPertempuran) {
-        document.getElementById("battle-screen").style.display = "none";
-        dalamPertempuran = false;
-        menungguButangA = false;
-        lukisPeta();
+function tekanB() {
+    if (modSemasa === "BATTLE") {
+        document.getElementById("battle-hud").style.display = "none";
+        tutupDialog();
+        lukisSemua();
     }
 }
 
-// Sokongan Papan Kekunci (Keyboard)
-window.addEventListener("keydown", (e) => {
-    if (e.key === "ArrowUp" || e.key === "w") gerakPemain(0, -1);
-    if (e.key === "ArrowDown" || e.key === "s") gerakPemain(0, 1);
-    if (e.key === "ArrowLeft" || e.key === "a") gerakPemain(-1, 0);
-    if (e.key === "ArrowRight" || e.key === "d") gerakPemain(1, 0);
-    if (e.key === "Enter" || e.key === " ") tekanButangA();
-    if (e.key === "Escape") tekanButangB();
+window.addEventListener("keydown", e => {
+    if (e.key === "ArrowUp") gerak(0, -1);
+    if (e.key === "ArrowDown") gerak(0, 1);
+    if (e.key === "ArrowLeft") gerak(-1, 0);
+    if (e.key === "ArrowRight") gerak(1, 0);
+    if (e.key === "Enter" || e.key === " ") tekanA();
+    if (e.key === "Escape") tekanB();
 });
 
-// Mula permainan
-lukisPeta();
+spriteImg.onload = lukisSemua;
+lukisSemua();
 </script>
 </body>
 </html>
